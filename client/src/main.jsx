@@ -7,6 +7,8 @@ import {
   Route,
   RouterProvider,
 } from "react-router-dom";
+import { AuthProvider } from "@arcana/auth";
+import { ProvideAuth } from "@arcana/auth-react";
 
 import LandingPage from "./pages/Landing/LandingPage.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
@@ -14,9 +16,12 @@ import JoinMeeting from "./pages/Join/JoinMeeting.jsx";
 import CreateMeeting from "./pages/CreateMeet/CreateMeeting.jsx";
 import Meeting from "./pages/MeetingPage/Meeting";
 import Lobby from "./pages/Lobby/Lobby";
-import SchedueledMeetings from "./pages/scheduledMeetings/scheduledMeetings.jsx"
+import SchedueledMeetings from "./pages/scheduledMeetings/scheduledMeetings.jsx";
 import { ToastContainer } from "react-toastify";
 
+const provider = new AuthProvider(`${import.meta.env.VITE_ARCANA_APP_ID}`, {
+  alwaysVisible: false,
+});
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/">
@@ -37,17 +42,19 @@ const router = createBrowserRouter(
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
-    <ToastContainer
-      position="top-right"
-      autoClose={5000}
-      hideProgressBar={false}
-      newestOnTop={false}
-      closeOnClick
-      rtl={false}
-      pauseOnFocusLoss
-      draggable
-      pauseOnHover
-    />
+    <ProvideAuth provider={provider}>
+      <RouterProvider router={router} />
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
+    </ProvideAuth>
   </React.StrictMode>
 );

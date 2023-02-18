@@ -6,19 +6,14 @@ import DashboardTable from "../components/DashboardTable/DashboardTable";
 export default function Dashboard() {
   const [isLoggedin, setIsLoggedin] = useState(false);
   const [myMeetings, setMyMeetings] = useState([]);
- 
 
   useEffect(() => {
-    if (
-      localStorage.getItem("defaultAccount") &&
-      window.ethereum.selectedAddress
-    ) {
+    if (localStorage.getItem("defaultAccount")) {
       setIsLoggedin(true);
     } else {
       setIsLoggedin(false);
     }
   }, []);
-
 
   return (
     <div>
