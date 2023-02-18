@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { ethers } from "ethers";
 import { toast } from "react-toastify";
 import { AvatarGenerator } from "random-avatar-generator";
-import { Auth, useAuth } from "@arcana/auth-react";
+import { useAuth } from "@arcana/auth-react";
 
 const Navbar = () => {
   const auth = useAuth();
@@ -23,7 +23,6 @@ const Navbar = () => {
   const [defaultAccount, setDefaultAccount] = useState(null);
   const [userBalance, setUserBalance] = useState(null);
   // const [connButtonText, setConnButtonText] = useState("Connect Wallet");
-  const [provider, setProvider] = useState(null);
   const [avatar, setAvatar] = useState(null);
 
   // const connectWalletHandler = (isClicked) => {
@@ -63,55 +62,46 @@ const Navbar = () => {
   //   }
   // };
 
+  const setAccount = () => {
+    const result = auth.user;
+    console.log(result);
+    if (result) {
+      toast.success("Logged in");
+      setIsLoggedin(true);
+      setDefaultAccount(result.address);
+      localStorage.setItem("defaultAccount", JSON.stringify(result.address));
+      setAvatar(result.picture);
+    }
+  };
+
   const loginWithArcana = async () => {
     await auth
       .loginWithSocial("github")
       .then((result) => {
-        console.log(result);
-        if (result) {
-          toast.success("Wallet Connected");
-          setIsLoggedin(true);
-          setDefaultAccount(result.address);
-          const generator = new AvatarGenerator();
-          localStorage.setItem(
-            "defaultAccount",
-            JSON.stringify(result.address)
-          );
-
-          setAvatar(generator.generateRandomAvatar("" + result.address));
-        }
+        setAccount();
       })
       .catch((err) => {
         console.log(err);
-        toast.error("Error connecting wallet");
+        toast.error("Error logging in");
       });
   };
 
   const logout = () => {
     auth.logout();
-    toast("Logged Out");
-    localStorage.removeItem("defaultAccount");
-    localStorage.removeItem("userBalance");
+    localStorage.clear();
     setDefaultAccount(null);
     setUserBalance(null);
     setIsLoggedin(false);
-    setConnButtonText("Connect Wallet");
+    setConnButtonText("Login");
+    toast("Logged Out");
     // window.location.reload();
   };
 
   useEffect(() => {
-    const defaultAccount = JSON.parse(localStorage.getItem("defaultAccount"));
-    if (defaultAccount && window.ethereum.selectedAddress === defaultAccount) {
-      loginWithArcana();
-      setDefaultAccount(defaultAccount);
-      setIsLoggedin(true);
-
-      const generator = new AvatarGenerator();
-      setAvatar(generator.generateRandomAvatar("" + defaultAccount));
-    } else {
-      setIsLoggedin(false);
+    if (auth.user) {
+      setAccount();
     }
-  }, []);
+  }, [auth.user]);
 
   return (
     <div className="w-11/12 md:mr-10 md:ml-10 ml-5 mt-5 rounded-xl navbar ">
@@ -127,7 +117,7 @@ const Navbar = () => {
               className="justify-between"
               onClick={() => loginWithArcana()}
             >
-              Connect Now
+              Log in with Github
             </button>
             {/* <Auth
               externalWallet={false}
