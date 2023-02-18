@@ -19,7 +19,9 @@ import Lobby from "./pages/Lobby/Lobby";
 import SchedueledMeetings from "./pages/scheduledMeetings/scheduledMeetings.jsx";
 import { ToastContainer } from "react-toastify";
 
-const provider = new AuthProvider(`${import.meta.env.VITE_ARCANA_APP_ID}`);
+const provider = new AuthProvider(`${import.meta.env.VITE_ARCANA_APP_ID}`, {
+  alwaysVisible: false,
+});
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/">
