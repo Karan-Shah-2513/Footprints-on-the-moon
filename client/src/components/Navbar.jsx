@@ -9,20 +9,6 @@ import { useAuth } from "@arcana/auth-react";
 const Navbar = () => {
   const auth = useAuth();
   const [isLoggedin, setIsLoggedin] = useState(false);
-  // const navigate = useNavigate();
-
-  // const JoinMeeting = () => {
-  //   navigate("/join");
-  // };
-
-  // const CreateMeeting = () => {
-  //   navigate("/create");
-  // };
-
-  // const [errorMessage, setErrorMessage] = useState(null);
-  const [defaultAccount, setDefaultAccount] = useState(null);
-  const [userBalance, setUserBalance] = useState(null);
-  // const [connButtonText, setConnButtonText] = useState("Connect Wallet");
   const [avatar, setAvatar] = useState(null);
 
   // const connectWalletHandler = (isClicked) => {
@@ -68,8 +54,8 @@ const Navbar = () => {
     if (result) {
       toast.success("Logged in");
       setIsLoggedin(true);
-      setDefaultAccount(result.address);
       localStorage.setItem("defaultAccount", JSON.stringify(result.address));
+      localStorage.setItem("selectedAddress", JSON.stringify(result.address));
       setAvatar(result.picture);
     }
   };
@@ -89,17 +75,20 @@ const Navbar = () => {
   const logout = () => {
     auth.logout();
     localStorage.clear();
-    setDefaultAccount(null);
-    setUserBalance(null);
     setIsLoggedin(false);
-    setConnButtonText("Login");
     toast("Logged Out");
     // window.location.reload();
   };
 
   useEffect(() => {
     if (auth.user) {
-      setAccount();
+      const result = auth.user;
+      console.log(result);
+      if (result) {
+        setIsLoggedin(true);
+        localStorage.setItem("defaultAccount", JSON.stringify(result.address));
+        setAvatar(result.picture);
+      }
     }
   }, [auth.user]);
 
@@ -119,11 +108,6 @@ const Navbar = () => {
             >
               Log in with Github
             </button>
-            {/* <Auth
-              externalWallet={false}
-              theme={"light"}
-              onLogin={loginWithArcana}
-            /> */}
           </div>
         )}
 
@@ -160,75 +144,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-
-// // Path: client\src\components\Register.jsx
-// //Register
-// import React, { useState } from "react";
-// import { useHistory } from "react-router-dom";
-// import axios from "axios";
-
-// const Register = () => {
-//   const history = useHistory();
-//   const [email, setEmail] = useState("");
-//   const [password, setPassword] = useState("");
-//   const [name, setName] = useState("");
-
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-//     try {
-//       const res = await axios.post("/api/register", {
-//         email,
-//         password,
-//         name,
-//       });
-//       console.log(res.data);
-//       history.push("/login");
-//     } catch (err) {
-//       console.log(err);
-//     }
-//   };
-
-//   return (
-//     <div className="container">
-//       <form onSubmit={handleSubmit}>
-//         <label htmlFor="name">Name</label>
-//         <input
-//           type="text"
-//           name="name"
-//           id="name"
-//           value={name}
-//           onChange={(e) => setName(e.target.value)}
-//         />
-//         <label htmlFor="email">Email</label>
-//         <input
-//           type="email"
-//           name="email"
-//           id="email"
-//           value={email}
-//           onChange={(e) => setEmail(e.target.value)}
-//         />
-//         <label htmlFor="password">Password</label>
-//         <input
-//           type="password"
-//           name="password"
-//           id="password"
-//           value={password}
-//           onChange={(e) => setPassword(e.target.value)}
-//         />
-//         <button type="submit">Register</button>
-//       </form>
-//     </div>
-//   );
-// };
-
-// export default Register;
-
-// // Path: client\src\components\Login.jsx
-// //Login
-// import React, { useState } from "react";
-// import { useHistory } from "react-router-dom";
-// import axios from "axios";
-
-// const Login = () => {
-//   const history = useHistory();
-//   const [
