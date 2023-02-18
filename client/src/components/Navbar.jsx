@@ -9,15 +9,15 @@ import { Auth, useAuth } from "@arcana/auth-react";
 const Navbar = () => {
   const auth = useAuth();
   const [isLoggedin, setIsLoggedin] = useState(false);
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
-  const JoinMeeting = () => {
-    navigate("/join");
-  };
+  // const JoinMeeting = () => {
+  //   navigate("/join");
+  // };
 
-  const CreateMeeting = () => {
-    navigate("/create");
-  };
+  // const CreateMeeting = () => {
+  //   navigate("/create");
+  // };
 
   // const [errorMessage, setErrorMessage] = useState(null);
   const [defaultAccount, setDefaultAccount] = useState(null);
