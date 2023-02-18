@@ -4,8 +4,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { ethers } from "ethers";
 import { toast } from "react-toastify";
 import { AvatarGenerator } from "random-avatar-generator";
+import { Auth, useAuth } from "@arcana/auth-react";
 
 const Navbar = () => {
+  const auth = useAuth();
   const [isLoggedin, setIsLoggedin] = useState(false);
   const navigate = useNavigate();
 
@@ -24,44 +26,69 @@ const Navbar = () => {
   const [provider, setProvider] = useState(null);
   const [avatar, setAvatar] = useState(null);
 
-  const connectWalletHandler = (isClicked) => {
-    if (
-      window.ethereum != null &&
-      window.ethereum.isMetaMask === true &&
-      window.ethereum.isConnected() === true
-    ) {
-      // set ethers provider
-      setProvider(new ethers.providers.Web3Provider(window.ethereum));
+  // const connectWalletHandler = (isClicked) => {
+  //   if (
+  //     window.ethereum != null &&
+  //     window.ethereum.isMetaMask === true &&
+  //     window.ethereum.isConnected() === true
+  //   ) {
+  //     // set ethers provider
+  //     setProvider(new ethers.providers.Web3Provider(window.ethereum));
 
-      // connect to metamask
-      window.ethereum
-        .request({ method: "eth_requestAccounts" })
-        .then((result) => {
-          console.log(result);
-          // setConnButtonText("Wallet Connected");
-          if (isClicked) {
-            toast.success("Wallet Connected");
-          }
+  //     // connect to metamask
+  //     window.ethereum
+  //       .request({ method: "eth_requestAccounts" })
+  //       .then((result) => {
+  //         console.log(result);
+  //         // setConnButtonText("Wallet Connected");
+  //         if (isClicked) {
+  //           toast.success("Wallet Connected");
+  //         }
+  //         setIsLoggedin(true);
+  //         setDefaultAccount(result[0]);
+  //         const generator = new AvatarGenerator();
+  //         localStorage.setItem("defaultAccount", JSON.stringify(result[0]));
+  //         localStorage.setItem("userBalance", JSON.stringify(result[0]));
+  //         setAvatar(generator.generateRandomAvatar());
+  //       })
+  //       .catch((error) => {
+  //         // setErrorMessage(error.message);
+  //       });
+  //   } else {
+  //     console.log("Need to install MetaMask and enable it on this tab");
+  //     toast.error(
+  //       "Please install MetaMask browser extension and enable it on this tab to interact "
+  //     );
+  //     // setErrorMessage("Please install MetaMask browser extension to interact");
+  //   }
+  // };
+
+  const loginWithArcana = async () => {
+    await auth
+      .loginWithSocial("github")
+      .then((result) => {
+        console.log(result);
+        if (result) {
+          toast.success("Wallet Connected");
           setIsLoggedin(true);
-          setDefaultAccount(result[0]);
+          setDefaultAccount(result.address);
           const generator = new AvatarGenerator();
-          localStorage.setItem("defaultAccount", JSON.stringify(result[0]));
-          localStorage.setItem("userBalance", JSON.stringify(result[0]));
-          setAvatar(generator.generateRandomAvatar());
-        })
-        .catch((error) => {
-          // setErrorMessage(error.message);
-        });
-    } else {
-      console.log("Need to install MetaMask and enable it on this tab");
-      toast.error(
-        "Please install MetaMask browser extension and enable it on this tab to interact "
-      );
-      // setErrorMessage("Please install MetaMask browser extension to interact");
-    }
+          localStorage.setItem(
+            "defaultAccount",
+            JSON.stringify(result.address)
+          );
+
+          setAvatar(generator.generateRandomAvatar("" + result.address));
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        toast.error("Error connecting wallet");
+      });
   };
 
   const logout = () => {
+    auth.logout();
     toast("Logged Out");
     localStorage.removeItem("defaultAccount");
     localStorage.removeItem("userBalance");
@@ -72,11 +99,10 @@ const Navbar = () => {
     // window.location.reload();
   };
 
-
   useEffect(() => {
     const defaultAccount = JSON.parse(localStorage.getItem("defaultAccount"));
     if (defaultAccount && window.ethereum.selectedAddress === defaultAccount) {
-      connectWalletHandler();
+      loginWithArcana();
       setDefaultAccount(defaultAccount);
       setIsLoggedin(true);
 
@@ -99,10 +125,15 @@ const Navbar = () => {
           <div className="dropdown dropdown-end flex gap-3">
             <button
               className="justify-between"
-              onClick={() => connectWalletHandler(true)}
+              onClick={() => loginWithArcana()}
             >
               Connect Now
             </button>
+            {/* <Auth
+              externalWallet={false}
+              theme={"light"}
+              onLogin={loginWithArcana}
+            /> */}
           </div>
         )}
 
